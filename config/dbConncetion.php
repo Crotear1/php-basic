@@ -2,10 +2,11 @@
 
 $servername = "localhost";
 $username = "root";
-$dbName = "";
+$password = "";
+$dbName = "webshop";
 
 // Create connection
-$conn = new mysqli($servername, $username);
+$conn = new mysqli($servername, $username, $password, $dbName);
 
 // Check connection
 if ($conn->connect_error) {

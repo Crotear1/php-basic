@@ -68,7 +68,7 @@ li.dropdown {
 
 <ul>
   <li><a href="#home">Startseite</a></li>
-  <li><a href="#news">Register</a></li>
+  <li><a href="/php-basic/register.php">Register</a></li>
   <li><a href="#news">Login</a></li>
 </ul>
 
