@@ -11,5 +11,5 @@ if (!isset($_SESSION["shoppingCart"])) {
 }
 
 if (!isset($_SESSION["isAdmin"])) {
-    $_SESSION["shoppingCart"] = 'notAdmin';
+    $_SESSION["isAdmin"] = 'notAdmin';
 }
