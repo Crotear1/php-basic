@@ -67,9 +67,22 @@ li.dropdown {
 <body>
 
 <ul>
-  <li><a href="#home">Startseite</a></li>
-  <li><a href="/php-basic/register.php">Register</a></li>
-  <li><a href="/php-basic/login.php">Login</a></li>
+  <li><a href="/php-basic/index.php">Startseite</a></li>
+  <?php if($_SESSION["loggedIn"] === "notLoggedIn") : ?>
+    <li><a href="/php-basic/register.php">Register</a></li>
+    <li><a href="/php-basic/login.php">Login</a></li>
+  <?php elseif($_SESSION["isAdmin"] === "yes" && $_SESSION["loggedIn"] === "isLoggedIn") : ?>
+    <li><a href="/php-basic/login.php">Produktliste</a></li>
+  <?php endif; ?>
+
+  <?php if($_SESSION["loggedIn"] === "isLoggedIn") : ?>
+    <li>
+      <form action="/php-basic/functions/logout.php" method="post">
+        <input type="submit" name="submit" />
+      </form>
+    </li>
+  <?php endif; ?>
+
 </ul>
 
 </body>

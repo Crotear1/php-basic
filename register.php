@@ -2,6 +2,10 @@
 include 'config/dbConncetion.php';
 include 'components/navigation.php';
 
+if($_SESSION["loggedIn"] === "isLoggedIn") {
+  header("Location: index.php");
+}
+
 $errorMessage = null;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
@@ -15,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         }
     } else {
         $errorMessage = "Bitte geben Sie Ihre E-Mail-Adresse ein.";
+        return;
     }    
     
     if (isset($_POST["psw"]) && !empty($_POST["psw"]) && isset($_POST["psw-repeat"]) && !empty($_POST["psw-repeat"] && $_POST["psw"] === $_POST["psw-repeat"])) {
@@ -64,6 +69,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $stmt->bind_param("ssssssss", $email, $hashedPassword, $fn, $ln, $housenumber, $street, $city, $zip);
 
     $stmt->execute();
+
+    header("Location: login.php");
 
 }
 
