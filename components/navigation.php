@@ -72,7 +72,7 @@ li.dropdown {
     <li><a href="/php-basic/register.php">Register</a></li>
     <li><a href="/php-basic/login.php">Login</a></li>
   <?php elseif($_SESSION["isAdmin"] === "yes" && $_SESSION["loggedIn"] === "isLoggedIn") : ?>
-    <li><a href="/php-basic/login.php">Produktliste</a></li>
+    <li><a href="/php-basic/admin/products.php">Produktliste</a></li>
   <?php endif; ?>
 
   <?php if($_SESSION["loggedIn"] === "isLoggedIn") : ?>

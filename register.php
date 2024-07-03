@@ -32,36 +32,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         $fn = filter_var($_POST["fn"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihren Vornamen ein.";
+        return;
     }     
     
     if (isset($_POST["ln"]) && !empty($_POST["ln"])) {
         $ln = filter_var($_POST["ln"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihren Nachnamen ein.";
+        return;
     }      
     
     if (isset($_POST["housenumber"]) && !empty($_POST["housenumber"])) {
         $housenumber = filter_var($_POST["housenumber"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihre Hausnummer ein.";
+        return;
     }  
 
     if (isset($_POST["street"]) && !empty($_POST["street"])) {
         $street = filter_var($_POST["street"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihre Straße ein.";
+        return;
     }     
     
     if (isset($_POST["city"]) && !empty($_POST["city"])) {
         $city = filter_var($_POST["city"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihre Stadt ein.";
+        return;
     }      
     
     if (isset($_POST["zip"]) && !empty($_POST["zip"])) {
         $zip = filter_var($_POST["zip"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie Ihre Postleitzahl ein.";
+        return;
     }  
 
     $stmt = $conn->prepare("INSERT INTO Users(email, password_hash, firstname, lastname, housenumber, street, city, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
