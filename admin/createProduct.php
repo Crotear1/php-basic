@@ -10,6 +10,41 @@ $errorMessage = null;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {  
+    
+    $target_dir = "/php-basic/images/";
+    $target_file = $_SERVER['DOCUMENT_ROOT'] . $target_dir . basename($_FILES["fileToUpload"]["name"]);
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+    // Check if image file is a actual image or fake image
+    $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+    if($check !== false) {
+        $errorMessage = "File is an image - " . $check["mime"] . ".";
+        $uploadOk = 1;
+    } else {
+        $errorMessage = "File is not an image.";
+        $uploadOk = 0;
+    }
+    
+    // Check if file already exists
+    if (file_exists($target_file)) {
+        $errorMessage = "Sorry, file already exists.";
+        $uploadOk = 0;
+    }
+
+    // Check file size
+    if ($_FILES["fileToUpload"]["size"] > 500000) {
+         $errorMessage = "Sorry, your file is too large.";
+        $uploadOk = 0;
+    }
+
+    // Allow certain file formats
+    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+    && $imageFileType != "gif" ) {
+        $errorMessage = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+        $uploadOk = 0;
+    }
+
     if (isset($_POST["articleNumber"]) && !empty($_POST["articleNumber"])) {
         $articleNumber = filter_var($_POST["articleNumber"], FILTER_SANITIZE_NUMBER_INT);
     } else {
@@ -39,31 +74,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }     
     
     if (isset($_POST["stock"]) && !empty($_POST["stock"])) {
-        $stock = filter_var($_POST["$stock"], FILTER_SANITIZE_STRING);
+        $stock = filter_var($_POST["stock"], FILTER_SANITIZE_STRING);
     } else {
         $errorMessage = "Bitte geben Sie eine gültige Anzahl ein.";
         return;
     }      
-    
-    if (isset($_POST["imageID"]) && !empty($_POST["imageID"])) {
-       
+
+    if ($uploadOk == 0 && $errorMessage !== null) {
+        $errorMessage = "Sorry, your file was not uploaded.";
     } else {
-        return;
-    }  
+        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+            echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
 
-    $stmt = $conn->prepare("INSERT INTO Users(email, password_hash, firstname, lastname, housenumber, street, city, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO Products(articleNumber, productName, price, stock, imageID, description) VALUES (?, ?, ?, ?, ?, ?)");
 
-    $stmt->bind_param("ssssssss", $email, $hashedPassword, $fn, $ln, $housenumber, $street, $city, $zip);
+            $stmt->bind_param("isdiss", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description);
+        
+            $stmt->execute();
 
-    $stmt->execute();
-
-    header("Location: login.php");
-
+        } else {
+            $errorMessage = "Sorry, there was an error uploading your file.";
+        }
+    }
 }
 
 ?>
 
-<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
   <div class="container">
     <h1>Registrieren</h1>
     <hr>
@@ -85,8 +122,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     <label for="stock"><b>Stückzahl</b></label>
     <input type="number" placeholder="Stückzahl" name="stock" id="stock" >
 
-    <label for="imageID"><b>Produtk Bild</b></label>
-    <input type="file" placeholder="Produkt Bild" name="imageID" id="imageID" >    
+    <label for="fileToUpload"><b>Produtk Bild</b></label>
+    <input type="file" name="fileToUpload" id="fileToUpload">
 
     <hr>
 
