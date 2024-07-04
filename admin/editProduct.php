@@ -7,10 +7,28 @@ if($_SESSION["isAdmin"] !== "yes") {
 }
 
 $errorMessage = null;
-$successMessage = null;
+
+if(isset($_GET["productID"]) && !empty($_GET["productID"])) {
+    $productID = (int)htmlspecialchars($_GET["productID"]);
+
+    $sql = "SELECT * FROM Products WHERE productID=? LIMIT 1"; // SQL with parameters
+    $stmt = $conn->prepare($sql); 
+    $stmt->bind_param("i", $productID);
+    $stmt->execute();
+    $result = $stmt->get_result(); // get the mysqli result
+    $product = $result->fetch_assoc(); // fetch data   
+
+    $articleNumber = $product["articleNumber"];
+    $productName = $product["productName"];
+    $description = $product["description"];
+    $price = $product["price"];
+    $stock = $product["stock"];
+
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {  
+    
     $target_dir = "/php-basic/images/";
     $target_file = $_SERVER['DOCUMENT_ROOT'] . $target_dir . basename($_FILES["fileToUpload"]["name"]);
     $uploadOk = 1;
@@ -32,8 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
 
     // Check file size
-    if ($_FILES["fileToUpload"]["size"] > 5000000) {
-        $errorMessage = "Sorry, your file is too large.";
+    if ($_FILES["fileToUpload"]["size"] > 500000000) {
+         $errorMessage = "Sorry, your file is too large.";
         $uploadOk = 0;
     }
 
@@ -66,8 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }  
 
     if (isset($_POST["price"]) && !empty($_POST["price"])) {
-      $price = str_replace(',', '.', $_POST["price"]);
-      $price = filter_var($price, FILTER_VALIDATE_FLOAT);
+        $price = filter_var($_POST["price"], FILTER_SANITIZE_NUMBER_FLOAT);
     } else {
         $errorMessage = "Bitte geben Sie einen gültigen Preis ein.";
         return;
@@ -81,17 +98,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }      
 
     if ($uploadOk == 0 && $errorMessage !== null) {
-      return;
+        
     } else {
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 
-            $stmt = $conn->prepare("INSERT INTO Products(articleNumber, productName, price, stock, imageID, description) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("UPDATE Products SET articleNumber=?, productName=?, price=?, stock=?, imageID=?, description=? WHERE productID=?");
 
-            $stmt->bind_param("isdiss", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description);
+            $stmt->bind_param("isdissi", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description, $productID);
         
             $stmt->execute();
-
-            $successMessage = "Produkt erfolgreich erstellt";
+            
+            header("Location: products.php");
 
         } else {
             $errorMessage = "Sorry, there was an error uploading your file.";
@@ -107,29 +124,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     <hr>
 
     <p> <?php echo $errorMessage; ?> </p>
-    <p> <?php echo $successMessage; ?> </p>
 
     <label for="articleNumber"><b>Artikelnummer</b></label><br>
-    <input type="number" placeholder="Artikelnummer" name="articleNumber" id="articleNumber" >
+    <input type="number" placeholder="Artikelnummer" name="articleNumber" id="articleNumber" value="<?php echo $articleNumber ?>">
 
     <label for="productName"><b>Produktname</b></label>
-    <input type="text" placeholder="Produktname" name="productName" id="productName" >
+    <input type="text" placeholder="Produktname" name="productName" id="productName" value="<?php echo $productName ?>" >
 
     <label for="description"><b>Beschreibung</b></label>
-    <input type="text" placeholder="Beschreibung" name="description" id="description" >
+    <input type="text" placeholder="Beschreibung" name="description" id="description" value="<?php echo $description ?>">
 
     <label for="price"><b>Preis</b></label>
-    <input type="number" step=".01" placeholder="Preis" name="price" id="price" >
+    <input type="number" placeholder="Preis" name="price" id="price" value="<?php echo $price ?>">
 
     <label for="stock"><b>Stückzahl</b></label>
-    <input type="number" placeholder="Stückzahl" name="stock" id="stock" >
+    <input type="number" placeholder="Stückzahl" name="stock" id="stock" value="<?php echo $stock ?>">
 
     <label for="fileToUpload"><b>Produtk Bild</b></label>
-    <input type="file" name="fileToUpload" id="fileToUpload">
-
+    <input type="file" name="fileToUpload" id="fileToUpload" >
+    <br>
+    <img style="width: 100px; margin: 100px;" src="<?php echo "../images/" . $product["imageID"] ?>">
     <hr>
 
-    <button type="submit" class="registerbtn">Registrieren</button>
+    <button type="submit" class="registerbtn">Aktualisieren</button>
   </div>
 
 </form>

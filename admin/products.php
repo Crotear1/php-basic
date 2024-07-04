@@ -8,6 +8,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
+
+
 ?>
 
 <!DOCTYPE html>
@@ -30,11 +32,23 @@ th, td {
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
+.productBox {
+  background-color: #38444d;
+  border: 5px solid #ddd; /* Green border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 100%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+} 
+
 </style>
 </head>
 <body>
 
-<a href="createProduct.php"> Neues Produkt anlegen </a>
+<form action="createProduct.php">
+    <input class="productBox" type="submit" value="Produkt erstellen" />
+</form>
 
 <table>
     <tr>
@@ -44,6 +58,7 @@ tr:nth-child(even) {
         <th>Stückzahl</th>
         <th>Beschreibung</th>
         <th>Produktfoto</th>
+        <th>Aktionen</th>
     </tr>
     <?php  foreach($rows as $row): ?>
         <tr>
@@ -52,7 +67,16 @@ tr:nth-child(even) {
             <td><?=$row["price"];?></td>
             <td><?=$row["stock"];?></td>
             <td><?=$row["description"];?></td>
-            <td><?=$row["imageID"];?></td>
+            <td><?php echo '<img style="width: 100px; height: 100px;" src="../images/' . $row["imageID"] . '" alt="image" />'; ?></td>
+            <td>
+              <form action="editProduct.php" method="GET">
+                <input type="hidden" name="productID" value="<?=$row["productID"];?>" />
+                  <input class="productBox" type="submit" value="Bearbeiten" />
+              </form>              
+              <form action="editProduct.php" method="GET">
+                  <input class="productBox" type="submit" value="Löschen" />
+              </form>
+            </td>
         </tr>
     <?php endforeach;?>
 </table>

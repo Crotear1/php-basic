@@ -1,3 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-/images
+# Ignoriere alle Dateien im images-Ordner
+images/*
