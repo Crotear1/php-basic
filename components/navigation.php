@@ -40,6 +40,20 @@ li.dropdown {
   display: inline-block;
 }
 
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
@@ -54,13 +68,16 @@ li.dropdown {
   padding: 12px 16px;
   text-decoration: none;
   display: block;
-  text-align: left;
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1;}
+.dropdown-content a:hover {background-color: #f1f1f1}
 
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
 }
 </style>
 </head>
@@ -78,7 +95,7 @@ li.dropdown {
   <?php if($_SESSION["loggedIn"] === "isLoggedIn") : ?>
     <li>
       <form action="/php-basic/functions/logout.php" method="post">
-        <input type="submit" name="submit" />
+        <input type="submit" value="Ausloggen" />
       </form>
     </li>
   <?php endif; ?>
