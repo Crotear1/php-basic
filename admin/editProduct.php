@@ -9,7 +9,7 @@ if($_SESSION["isAdmin"] !== "yes") {
 $errorMessage = null;
 
 if(isset($_GET["productID"]) && !empty($_GET["productID"])) {
-    $productID = (int)htmlspecialchars($_GET["productID"]);
+    $productID = filter_var($_GET["productID"], FILTER_VALIDATE_INT);
 
     $sql = "SELECT * FROM Products WHERE productID=? LIMIT 1"; // SQL with parameters
     $stmt = $conn->prepare($sql); 
@@ -28,7 +28,13 @@ if(isset($_GET["productID"]) && !empty($_GET["productID"])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {  
-    
+  $productID = filter_var($_POST['productID'], FILTER_VALIDATE_INT);
+  if ($productID === false) {
+      $errorMessage = "Invalid product ID.";
+      return; 
+  }  
+
+
     $target_dir = "/php-basic/images/";
     $target_file = $_SERVER['DOCUMENT_ROOT'] . $target_dir . basename($_FILES["fileToUpload"]["name"]);
     $uploadOk = 1;
@@ -101,14 +107,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         
     } else {
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-
             $stmt = $conn->prepare("UPDATE Products SET articleNumber=?, productName=?, price=?, stock=?, imageID=?, description=? WHERE productID=?");
+
+            echo $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description, $productID;
 
             $stmt->bind_param("isdissi", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description, $productID);
         
             $stmt->execute();
             
-            header("Location: products.php");
+            // header("Location: products.php");
 
         } else {
             $errorMessage = "Sorry, there was an error uploading your file.";
@@ -142,6 +149,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     <label for="fileToUpload"><b>Produtk Bild</b></label>
     <input type="file" name="fileToUpload" id="fileToUpload" >
+
+    <input type="hidden" name="productID" value="<?php echo $productID; ?>">
     <br>
     <img style="width: 100px; margin: 100px;" src="<?php echo "../images/" . $product["imageID"] ?>">
     <hr>
