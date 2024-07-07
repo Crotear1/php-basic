@@ -30,6 +30,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["addCard"])) {
   summary();
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["deleteState"])) {
+  $productID = $_POST["productID"];
+
+  foreach ($_SESSION["shoppingCart"] as $key => $item) {
+    if ($item["productID"] == $productID) {
+        echo $key; 
+        break;
+    }
+  }
+
+  unset($_SESSION["shoppingCart"][$key]);
+
+  summary();
+}
+
+
 ?>
 
 <style>
@@ -56,11 +72,20 @@ tr:nth-child(even) {
     <th>Produktname</th>
     <th>Preis</th>
   </tr>
+  <?php var_dump($_SESSION["shoppingCart"]) ?>
   <?php  foreach($_SESSION["shoppingCart"] as $cartItem): ?>
     <tr>
       <td><?php echo $cartItem["productID"] ?></td>
       <td><?php echo $cartItem["productName"] ?></td>
       <td><?php echo $cartItem["price"] ?></td>
+
+      <td>
+        <form method="POST" action="<?php htmlspecialchars($_SERVER["PHP_SELF"]) ?>">
+          <input type="hidden" name="productID" value="<?php echo htmlspecialchars($product["productID"]) ?>" >
+          <input type="hidden" name="deleteState" value="deleteState" >
+          <input type="submit" value="Entfernen">
+        </form>
+      </td>
     </tr>
   <?php endforeach;?>
 </table>
