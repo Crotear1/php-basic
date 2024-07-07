@@ -72,7 +72,6 @@ tr:nth-child(even) {
     <th>Produktname</th>
     <th>Preis</th>
   </tr>
-  <?php var_dump($_SESSION["shoppingCart"]) ?>
   <?php  foreach($_SESSION["shoppingCart"] as $cartItem): ?>
     <tr>
       <td><?php echo $cartItem["productID"] ?></td>

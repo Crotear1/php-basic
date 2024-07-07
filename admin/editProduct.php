@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
+    if($_FILES["fileToUpload"]["tmp_name"]) {
     // Check if image file is a actual image or fake image
     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
     if($check !== false) {
@@ -66,6 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     && $imageFileType != "gif" ) {
         $errorMessage = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
         $uploadOk = 0;
+    }} else {
+      $uploadOk = 2;
     }
 
     if (isset($_POST["articleNumber"]) && !empty($_POST["articleNumber"])) {
@@ -117,6 +120,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             
             // header("Location: products.php");
 
+        } else if($uploadOk === 2) {
+          $stmt = $conn->prepare("UPDATE Products SET articleNumber=?, productName=?, price=?, stock=?, description=? WHERE productID=?");
+
+            echo $articleNumber, $productName, $price, $stock, $description, $productID;
+
+            $stmt->bind_param("isdisi", $articleNumber, $productName, $price, $stock, $description, $productID);
+        
+            $stmt->execute();
         } else {
             $errorMessage = "Sorry, there was an error uploading your file.";
         }
