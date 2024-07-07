@@ -78,16 +78,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     } else {
         $errorMessage = "Bitte geben Sie eine gültige Anzahl ein.";
         return;
+    }   
+
+    if (isset($_POST["available"]) && !empty($_POST["available"])) {
+        $available = filter_var($_POST["available"], FILTER_SANITIZE_NUMBER_INT);
+        echo $available;
+    } else {
+        return $errorMessage = "Bitte wähle eine Option";
     }      
 
     if ($uploadOk == 0 && $errorMessage !== null) {
-      return;
+      exit;
     } else {
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 
-            $stmt = $conn->prepare("INSERT INTO Products(articleNumber, productName, price, stock, imageID, description) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO Products(articleNumber, productName, price, stock, imageID, description, available) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-            $stmt->bind_param("isdiss", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description);
+            $stmt->bind_param("isdissi", $articleNumber, $productName, $price, $stock, $_FILES["fileToUpload"]["name"], $description, $available);
         
             $stmt->execute();
 
@@ -97,6 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             $errorMessage = "Sorry, there was an error uploading your file.";
         }
     }
+
 }
 
 ?>
@@ -106,8 +114,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     <h1>Registrieren</h1>
     <hr>
 
-    <p> <?php echo $errorMessage; ?> </p>
-    <p> <?php echo $successMessage; ?> </p>
+    <?php if ($errorMessage): ?>
+        <div class="error-message"><?php echo $errorMessage; ?></div>
+    <?php endif; ?>
+
+    <?php if ($successMessage): ?>
+        <div class="success-message"><?php echo $successMessage; ?></div>
+    <?php endif; ?>
 
     <label for="articleNumber"><b>Artikelnummer</b></label><br>
     <input type="number" placeholder="Artikelnummer" name="articleNumber" id="articleNumber" >
@@ -124,9 +137,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     <label for="stock"><b>Stückzahl</b></label>
     <input type="number" placeholder="Stückzahl" name="stock" id="stock" >
 
+    
+    <label for="available"><b>Anzeigen</b></label><br>
+    <select name="available" required>
+      <option value="null">Hier auswählen</option>
+      <option value="0">Anzeigen</option>
+      <option value="1">Verstecken</option>
+    </select>
+    <br>
+    <br>
+
+
     <label for="fileToUpload"><b>Produtk Bild</b></label>
     <input type="file" name="fileToUpload" id="fileToUpload">
-
     <hr>
 
     <button type="submit" class="registerbtn">Registrieren</button>
