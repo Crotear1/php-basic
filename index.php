@@ -9,7 +9,11 @@ $result = $stmt->get_result(); // get the mysqli result
 $products = $result->fetch_all(MYSQLI_ASSOC); 
 
 function summary() {
-  
+  $sum = 0;
+  foreach($_SESSION["shoppingCart"] as $cartItem)
+  $sum = $sum + $cartItem["price"];
+
+  return $sum;
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["addCard"])) {
@@ -23,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["addCard"])) {
     "price" => $price,
 
   ]);
+  summary();
 }
 
 ?>
@@ -44,6 +49,25 @@ tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 </style>
+
+<table>
+  <tr>
+    <th>ProductID</th>
+    <th>Produktname</th>
+    <th>Preis</th>
+  </tr>
+  <?php  foreach($_SESSION["shoppingCart"] as $cartItem): ?>
+    <tr>
+      <td><?php echo $cartItem["productID"] ?></td>
+      <td><?php echo $cartItem["productName"] ?></td>
+      <td><?php echo $cartItem["price"] ?></td>
+    </tr>
+  <?php endforeach;?>
+</table>
+
+<p>
+  <?php echo summary() ?>
+</p>
 
 <?php  foreach($products as $product): ?>
     <tr>
@@ -71,26 +95,6 @@ tr:nth-child(even) {
         </td>
     </tr>
 <?php endforeach;?>
-
-
-<table>
-  <tr>
-    <th>ProductID</th>
-    <th>Produktname</th>
-    <th>Preis</th>
-  </tr>
-  <?php  foreach($_SESSION["shoppingCart"] as $cartItem): ?>
-    <tr>
-      <td><?php echo $cartItem["productID"] ?></td>
-      <td><?php echo $cartItem["productName"] ?></td>
-      <td><?php echo $cartItem["price"] ?></td>
-    </tr>
-  <?php endforeach;?>
-</table>
-
-<p>
-  <?php echo summary() ?>
-</p>
 
 <style>
 .card {
