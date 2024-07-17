@@ -2,14 +2,15 @@
 
 session_start();
 
-if (!isset($_SESSION["loggedIn"])) {
-    $_SESSION["loggedIn"] = 'notLoggedIn';
+if(!isset($_SESSION["loggedIn"])) {
+    $_SESSION["loggedIn"] = "no";
 }
-
-if (!isset($_SESSION["shoppingCart"])) {
-    $_SESSION["shoppingCart"] = [];
+if(!isset($_SESSION["isAdmin"])) {
+    $_SESSION["isAdmin"] = "no";
 }
-
-if (!isset($_SESSION["isAdmin"])) {
-    $_SESSION["isAdmin"] = 'notAdmin';
+if(!isset($_SESSION["cart"])) {
+    $_SESSION["cart"] = [];
+}
+if(!isset($_SESSION["addressID"])) {
+    $_SESSION["addressID"] = null;
 }

@@ -1,83 +1,59 @@
 <?php 
-include 'config/dbConncetion.php';
-include 'components/navigation.php';
+include("stores/checkAdmin.php");
+include("stores/checkLoggedIn.php");
+include("stores/validation.php");
+include("components/navigation.php");
+include("config/db.php");
 
-if($_SESSION["loggedIn"] === "isLoggedIn") {
-    header("Location: index.php");
-}
+// checkAdmin();
+// checkLoggedIn();
 
-$errorMessage = null;
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
+    $psw = test_input($_POST["psw"]);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST")
-{
-    if (isset($_POST["email"]) && !empty($_POST["email"])) {
-        $email = $_POST["email"]; 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errorMessage = "Bitte geben Sie eine gültige E-Mail-Adresse ein.";
-        } else {
-            $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-        }
-    } else {
-        $errorMessage = "Bitte geben Sie Ihre E-Mail-Adresse ein.";
-        return;
-    }
-    
-    if (!isset($_POST["psw"]) && empty($_POST["psw"])) {
-        $errorMessage = "Bitte Passwort setzen";
-        return;
-    } else {
-        $psw = filter_input(INPUT_POST, "psw", FILTER_SANITIZE_STRING);
-    }
-
-    if($errorMessage === null) {
-        $sql = "SELECT userID, isAdmin, password_hash, email FROM Users WHERE email=?";
-        $stmt = $conn->prepare($sql); 
+    if(!isset($email) || empty($email) || !isset($psw) || empty($psw) ) {
+        echo htmlspecialchars("Etwas ist schiefgelaufen");
+    } {
+        $sql = "SELECT * FROM Persons WHERE email=?"; // SQL with parameters
+        $stmt = $db->prepare($sql); 
         $stmt->bind_param("s", $email);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        
-        if(password_verify($psw, $user["password_hash"])) {
-            $_SESSION['loggedIn'] = "isLoggedIn";
-            if($user["isAdmin"] === "yes") {
+        $result = $stmt->get_result(); // get the mysqli result
+        $person = $result->fetch_assoc(); // fetch data
+
+        if(password_verify($psw, $person["passwordHash"])) {
+            $_SESSION["loggedIn"] = "yes";
+
+            $_SESSION["addressID"] = $person["addressID"];
+
+            if($person["isAdmin"] === 1) {
                 $_SESSION["isAdmin"] = "yes";
             }
             header("Location: index.php");
         } else {
-            $errorMessage = "Falsches Passwort";
+            echo htmlspecialchars("Passwort oder Email ist falsch");
         }
-        
-
-        // if(password_verify($psw, $row["password_hash"])) {
-        //     echo "test";
-        // }
-
-        // while ($row = $result->fetch_assoc()) {
-        //     echo $row['name'];
-        // }
     }
-
-    
 }
 
 ?>
 
-<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-  <div class="container">
-    <p> <?php echo htmlspecialchars($errorMessage); ?> </p>
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Email" name="email" required>
+<!DOCTYPE html>
 
-    <label for="psw"><b>Passwort</b></label>
-    <input type="password" placeholder="Passwort" name="psw" required>
+<html lang="en">
 
-    <button type="submit">Login</button>
-  </div>
+<head>
+      <!-- Information about website and creator -->
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <!-- Defines the compatibility of version with browser -->
+      <meta name="viewport" content="width=device-width, 
+                   initial-scale=1.0" />
+      <title>Benutzer erstellen.</title>
 
-</form>
-
-<style>
-    /* Bordered form */
+      <style>
+/* Bordered form */
 form {
   border: 3px solid #f1f1f1;
 }
@@ -108,13 +84,6 @@ button:hover {
   opacity: 0.8;
 }
 
-/* Extra style for the cancel button (red) */
-.cancelbtn {
-  width: auto;
-  padding: 10px 18px;
-  background-color: #f44336;
-}
-
 /* Add padding to containers */
 .container {
   padding: 16px;
@@ -136,4 +105,22 @@ span.psw {
     width: 100%;
   }
 }
-</style>
+      </style>
+</head>
+
+<body>
+<form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+  <div class="container">
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Email" name="email" required>
+
+    <label for="psw"><b>Passwort</b></label>
+    <input type="password" placeholder="Passwort" name="psw" required>
+
+    <button type="submit">Login</button>
+  </div>
+</form>
+
+</body>
+
+</html>
